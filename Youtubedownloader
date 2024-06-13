@@ -1,0 +1,60 @@
+import os
+from pytube import YouTube
+from pytube.cli import on_progress
+
+def create_download_directory(directory_name):
+    """Create a directory for downloads if it doesn't exist."""
+    if not os.path.exists(directory_name):
+        os.makedirs(directory_name)
+        print(f"Created directory: {directory_name}")
+    else:
+        print(f"Directory already exists: {directory_name}")
+
+def get_video_info(video_url):
+    """Fetch video information from YouTube."""
+    try:
+        yt = YouTube(video_url, on_progress_callback=on_progress)
+        return yt
+    except Exception as e:
+        print(f"Error fetching video info: {e}")
+        return None
+
+def choose_stream(yt):
+    """Prompt user to choose a stream to download."""
+    streams = yt.streams.filter(progressive=True).order_by('resolution')
+    print("Available streams:")
+    for i, stream in enumerate(streams):
+        print(f"{i}. {stream.resolution} - {stream.mime_type} - {stream.filesize_approx / 1024 / 1024:.2f} MB")
+    choice = int(input("Enter the number of the stream to download: "))
+    return streams[choice]
+
+def download_video(stream, output_path):
+    """Download the selected stream."""
+    try:
+        stream.download(output_path)
+        print(f"Download completed: {stream.default_filename}")
+    except Exception as e:
+        print(f"Error during download: {e}")
+
+def main():
+    """Main function to download a YouTube video."""
+    video_url = input("Enter the YouTube video URL: ")
+    output_directory = input("Enter the directory to save the video (default: 'downloads'): ") or 'downloads'
+    
+    create_download_directory(C:\Users\Austi\Downloads\YouTube_Downloads)
+    
+    yt = get_video_info(video_url)
+    if yt:
+        print(f"Title: {yt.title}")
+        print(f"Author: {yt.author}")
+        print(f"Length: {yt.length // 60} minutes {yt.length % 60} seconds")
+        print(f"Views: {yt.views}")
+        print(f"Rating: {yt.rating}")
+        
+        stream = choose_stream(yt)
+        download_video(stream, output_directory)
+    else:
+        print("Failed to retrieve video information.")
+
+if __name__ == "__main__":
+    main()
